@@ -17,6 +17,9 @@ services:
       - PYTHIA_ENGINE_URL=http://engine:8088
     expose:
       - "3000"
+    networks:
+      - default
+      - coolify
     restart: unless-stopped
 
   engine:
@@ -36,3 +39,7 @@ services:
 
 volumes:
   engine-runs:
+
+networks:
+  coolify:
+    external: true
