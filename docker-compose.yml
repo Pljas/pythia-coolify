@@ -25,9 +25,9 @@ services:
       dockerfile: engine.Dockerfile
     environment:
       - OSIRIS_URL=http://osiris:3000
-      - LLM_BASE_URL=${LLM_BASE_URL:?set LLM_BASE_URL in Coolify env or .env}
-      - LLM_API_KEY=${LLM_API_KEY:?set LLM_API_KEY in Coolify env or .env}
-      - LLM_MODEL=${LLM_MODEL:?set LLM_MODEL in Coolify env or .env}
+      - LLM_BASE_URL=${LLM_BASE_URL}
+      - LLM_API_KEY=${LLM_API_KEY}
+      - LLM_MODEL=${LLM_MODEL}
     volumes:
       - engine-runs:/app/runs
     expose:
