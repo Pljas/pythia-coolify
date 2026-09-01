@@ -97,8 +97,10 @@ open http://localhost:3000                   # the globe
 
 ## Using the oracle
 
-Everything the engine knows is a plain HTTP call — the UI is optional:
-
+Everything the engine knows is a plain HTTP call — the UI is optional. Read-only
+(GET) endpoints are public; anything that triggers the LLM (`POST /chat`,
+`/predict`, `/whatif`, `/loop`, watchlist and alert mutations) must send the
+header `x-engine-key: <ENGINE_PROXY_KEY>` — the secret you set in Coolify env:
 ```bash
 # the whole world in one payload (events + live predictions)
 curl http://localhost:8088/agent/view
@@ -114,13 +116,51 @@ curl -X POST http://localhost:8088/chat -H 'content-type: application/json' \
 curl http://localhost:8088/scorecard
 ```
 
-Interactive docs: `http://localhost:8088/docs` (OpenAPI at `/openapi.json`).
-MCP for Claude Code & friends:
+Interactive docs: `http://localhost:8088/docs` (OpenAPI at `/openapi.json`); on a
+public deployment the same paths live under `/api/engine/*` behind the domain.
+
+### MCP — give your agent native oracle tools
+
+The engine ships an MCP server (stdio). Clone the engine repo anywhere, point it
+at this deployment, and register it with your MCP client (Claude Code example):
 
 ```bash
-claude mcp add pythia -- uv --directory /path/to/Pythia run python -m engine.mcp
-# or point PYTHIA_ENGINE_URL at the deployed engine
+git clone --depth 1 https://github.com/jangles-byte/Pythia.git
+claude mcp add pythia \
+  --env PYTHIA_ENGINE_URL=https://pythia.example.com/api/engine \
+  --env PYTHIA_ENGINE_KEY=<ENGINE_PROXY_KEY> \
+  -- uv --directory /path/to/Pythia run python -m engine.mcp
 ```
+
+Generic client config (any MCP host):
+
+```json
+{
+  "command": "uv",
+  "args": ["--directory", "/path/to/Pythia", "run", "python", "-m", "engine.mcp"],
+  "env": {
+    "PYTHIA_ENGINE_URL": "https://pythia.example.com/api/engine",
+    "PYTHIA_ENGINE_KEY": "<ENGINE_PROXY_KEY>"
+  }
+}
+```
+
+`PYTHIA_ENGINE_KEY` must equal the `ENGINE_PROXY_KEY` env var on the deployment —
+read-only tools work without it, mutating ones (`ask_oracle`, `predict_now`,
+`what_if`) require it.
+
+### Tools the MCP server exposes
+
+| Tool | What it does |
+|---|---|
+| `world_brief` | prose digest of everything happening on Earth right now, per-domain counts |
+| `get_events` | raw located signals, most salient first (filter by domain) |
+| `get_predictions` | forecasts with probability, reasoning, location, per-persona votes |
+| `predict_now` | trigger a fresh sensing + forecasting pass (~1–3 min) |
+| `ask_oracle` | ask anything — grounded in every live feed and current forecasts |
+| `what_if` | counterfactual: assume an event, get knock-on forecasts (ephemeral) |
+| `get_scorecard` | Brier score, hit rate, calibration, per-persona/per-model accuracy |
+| `get_market_watch` | tickers the oracle's own forecasts touch, with the why |
 
 ### Scope note: the deck UI
 

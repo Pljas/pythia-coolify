@@ -11,9 +11,9 @@ ARG PYTHIA_REF=main
 WORKDIR /build
 RUN git clone https://github.com/simplifaisoul/osiris.git osiris && git -C osiris checkout $OSIRIS_REF
 RUN git clone https://github.com/jangles-byte/Pythia.git pythia && git -C pythia checkout $PYTHIA_REF
-COPY apply-overlay.sh .
+COPY apply-overlay.sh patch-engine-proxy.mjs patch-next-config.mjs ./
 RUN bash apply-overlay.sh /build/osiris /build/pythia
-COPY patch-next-config.mjs .
+RUN cd osiris && node ../patch-engine-proxy.mjs "src/app/api/engine/[...path]/route.ts"
 RUN cd osiris && node ../patch-next-config.mjs
 
 FROM node:22-alpine AS builder

@@ -28,8 +28,7 @@ copy() { # copy <overlay-rel-path> <osiris-rel-path>
 
 echo "[overlay] engine api proxy"
 copy routes/engine-proxy-route.ts "src/app/api/engine/[...path]/route.ts"
-
-echo "[overlay] feed routes (engine FEEDS targets)"
+node "$(dirname "$0")/patch-engine-proxy.mjs" "$OSIRIS/src/app/api/engine/[...path]/route.ts"
 copy routes/kev-route.ts            src/app/api/kev/route.ts
 copy routes/faa-route.ts            src/app/api/faa-status/route.ts
 copy routes/cams-route.ts           src/app/api/cams/route.ts
