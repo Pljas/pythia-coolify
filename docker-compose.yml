@@ -1,0 +1,38 @@
+# PYTHIA oracle on Coolify — deploy as a Docker Compose resource.
+#
+# 1. Push this folder to a git repo.
+# 2. Coolify -> New Resource -> Docker Compose -> pick the repo.
+# 3. Fill LLM_* env vars (any OpenAI-compatible API).
+# 4. Assign a domain to the `osiris` service (port 3000). Engine stays internal.
+#
+# Images clone upstream sources at build time (always fresh, nothing vendored).
+
+services:
+  osiris:
+    build:
+      context: .
+      dockerfile: osiris.Dockerfile
+    environment:
+      # Osiris proxies UI calls to the engine via /api/engine/*
+      - PYTHIA_ENGINE_URL=http://engine:8088
+    expose:
+      - "3000"
+    restart: unless-stopped
+
+  engine:
+    build:
+      context: .
+      dockerfile: engine.Dockerfile
+    environment:
+      - OSIRIS_URL=http://osiris:3000
+      - LLM_BASE_URL=${LLM_BASE_URL:?set LLM_BASE_URL in Coolify env or .env}
+      - LLM_API_KEY=${LLM_API_KEY:?set LLM_API_KEY in Coolify env or .env}
+      - LLM_MODEL=${LLM_MODEL:?set LLM_MODEL in Coolify env or .env}
+    volumes:
+      - engine-runs:/app/runs
+    expose:
+      - "8088"
+    restart: unless-stopped
+
+volumes:
+  engine-runs:
