@@ -145,22 +145,22 @@ Generic client config (any MCP host):
 }
 ```
 
-`PYTHIA_ENGINE_KEY` must equal the `ENGINE_PROXY_KEY` env var on the deployment —
-read-only tools work without it, mutating ones (`ask_oracle`, `predict_now`,
-`what_if`) require it.
+`PYTHIA_ENGINE_KEY` must equal the `ENGINE_PROXY_KEY` env var on the deployment.
+Omit it for a read-only client (no LLM spend). Include it only if the agent should
+be allowed to ask questions or trigger new forecasts.
 
 ### Tools the MCP server exposes
 
-| Tool | What it does |
-|---|---|
-| `world_brief` | prose digest of everything happening on Earth right now, per-domain counts |
-| `get_events` | raw located signals, most salient first (filter by domain) |
-| `get_predictions` | forecasts with probability, reasoning, location, per-persona votes |
-| `predict_now` | trigger a fresh sensing + forecasting pass (~1–3 min) |
-| `ask_oracle` | ask anything — grounded in every live feed and current forecasts |
-| `what_if` | counterfactual: assume an event, get knock-on forecasts (ephemeral) |
-| `get_scorecard` | Brier score, hit rate, calibration, per-persona/per-model accuracy |
-| `get_market_watch` | tickers the oracle's own forecasts touch, with the why |
+| Tool | Key | What it does |
+|---|---|---|
+| `world_brief` | no | prose digest of everything happening on Earth right now, per-domain counts |
+| `get_events` | no | raw located signals, most salient first (filter by domain) |
+| `get_predictions` | no | forecasts with probability, reasoning, location, per-persona votes |
+| `get_scorecard` | no | Brier score, hit rate, calibration, per-persona/per-model accuracy |
+| `get_market_watch` | no | tickers the oracle's own forecasts touch, with the why |
+| `predict_now` | **yes** | trigger a fresh sensing + forecasting pass (~1–3 min) |
+| `ask_oracle` | **yes** | ask anything — grounded in every live feed and current forecasts |
+| `what_if` | **yes** | counterfactual: assume an event, get knock-on forecasts (ephemeral) |
 
 ### Scope note: the deck UI
 
