@@ -13,8 +13,6 @@ RUN git clone https://github.com/simplifaisoul/osiris.git osiris && git -C osiri
 RUN git clone https://github.com/jangles-byte/Pythia.git pythia && git -C pythia checkout $PYTHIA_REF
 COPY apply-overlay.sh patch-engine-proxy.mjs patch-next-config.mjs ./
 RUN bash apply-overlay.sh /build/osiris /build/pythia
-RUN cd osiris && node ../patch-engine-proxy.mjs "src/app/api/engine/[...path]/route.ts"
-RUN cd osiris && node ../patch-next-config.mjs
 
 FROM node:22-alpine AS builder
 WORKDIR /app

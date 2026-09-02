@@ -15,8 +15,6 @@ services:
     environment:
       # Osiris proxies UI calls to the engine via /api/engine/*
       - PYTHIA_ENGINE_URL=http://engine:8088
-    expose:
-      - "3000"
     networks:
       - default
       - coolify
@@ -33,8 +31,6 @@ services:
       - LLM_MODEL=${LLM_MODEL}
     volumes:
       - engine-runs:/app/runs
-    expose:
-      - "8088"
     restart: unless-stopped
 
 volumes:
